@@ -14,13 +14,13 @@ public class Main {
 
 
         /*DictionarySorter dictionarySorter = new DictionarySorter();
-        dictionarySorter.sortDictionary("unicode_combinations1.txt", "sortMD5_unicode_combinations1.txt", 1, unicodeConverter, md5);
+        dictionarySorter.sort("unicode_combinations1.txt", "sortMD5_unicode_combinations1.txt", 1, unicodeConverter, md5);
          */
-        BinaryHashSearcher searchHash = new BinaryHashSearcher("sortMD5_unicode_combinations1.txt", 1, unicodeConverter, md5);
+        BinaryHashSearcher searchHash = new BinaryHashSearcher(accessor, unicodeConverter, md5);
         Scanner scanner = new Scanner(System.in);
         String hash, result = "";
         long startTime, endTime = 0;
-        while (true){
+        while (true) {
             System.out.println("MD5 hash для расшифровки: ");
             hash = scanner.next();
 

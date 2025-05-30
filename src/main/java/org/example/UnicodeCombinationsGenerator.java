@@ -7,23 +7,23 @@ import java.nio.charset.StandardCharsets;
 
 public class UnicodeCombinationsGenerator {
 
-    public void generateFile(String filePath, int lenthCombination) {
+    public void generateFile(String filePath, int lengthCombination) {
         try (FileOutputStream fos = new FileOutputStream(filePath);
              OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_16BE)) {
-            if (lenthCombination == 1){
+            if (lengthCombination == 1) {
                 for (int i = 0; i < (int) Character.MAX_VALUE; i++) {
                     writer.write((char) i);
                 }
-            } else if (lenthCombination == 2){
+            } else if (lengthCombination == 2) {
                 for (int i = 0; i < (int) Character.MAX_VALUE; i++) {
                     for (int j = 0; j < (int) Character.MAX_VALUE; j++) {
                         writer.write((char) i + "" + (char) j);
                     }
-                    if (i % 100 == 0){
+                    if (i % 100 == 0) {
                         System.out.println(i);
                     }
                 }
-            } else{
+            } else {
                 return;
             }
 

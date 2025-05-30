@@ -10,7 +10,6 @@ public class MD5Hasher implements Hasher {
             md.update(input.getBytes());
             byte[] digest = md.digest();
 
-            // Преобразуем массив байт в шестнадцатеричную строку
             StringBuilder hexString = new StringBuilder();
             for (byte b : digest) {
                 hexString.append(String.format("%02x", b));

@@ -10,12 +10,10 @@ import java.util.Comparator;
 import java.util.List;
 
 public class DictionarySorter {
-
-    // Вспомогательный класс для хранения информации по одной комбинации
     private static class DictionaryEntry {
-        String originalCombination; // исходная комбинация, как прочитана из файла
-        String converted;           // преобразованное значение (через UnicodeConverter)
-        String md5Hash;             // MD5-хэш от преобразованного значения
+        String originalCombination;
+        String converted;
+        String md5Hash;
 
         DictionaryEntry(String originalCombination, String converted, String md5Hash) {
             this.originalCombination = originalCombination;
@@ -24,35 +22,19 @@ public class DictionarySorter {
         }
     }
 
-    /**
-     * Сортирует словарь по возрастанию MD5-хэша (вычисленного от преобразованной комбинации)
-     * и сохраняет результат в новый файл. Все параметры файла (кодировка, длина записи)
-     * остаются неизменными, меняется только порядок записей.
-     *
-     * @param inputFilePath    путь к исходному файлу-словарю (UTF-16BE)
-     * @param outputFilePath   путь к новому файлу, в котором будет записан отсортированный словарь
-     * @param symbolsPerElement количество символов в одной комбинации
-     * @param converter        объект UnicodeConverter для преобразования комбинаций
-     * @param md5Hasher        объект MD5Hasher для вычисления MD5-хэша
-     */
-    public void sortDictionary(String inputFilePath, String outputFilePath,
-                               int symbolsPerElement, UnicodeConverter converter,
-                               MD5Hasher md5Hasher)
-    {
-        // Создаем объект для доступа к элементам файла
+    public void sort(String inputFilePath, String outputFilePath,
+                     int symbolsPerElement, UnicodeConverter converter,
+                     Hasher hasher) {
         SymbolFileAccessor accessor = new SymbolFileAccessor(inputFilePath, symbolsPerElement);
         long totalElements = accessor.getTotalElements();
         System.out.println("Общее количество элементов: " + totalElements);
 
-        // Считываем все записи из файла и для каждой вычисляем преобразованное значение и MD5-хэш
         List<DictionaryEntry> entries = new ArrayList<>();
         for (long i = 0; i < totalElements; i++) {
             String element = accessor.getElement(i);
             if (element != null) {
-                // Преобразование комбинации (например, "A" -> "65", где 65 – это десятичное значение кода символа)
                 String converted = converter.unicodeToRangeString(element);
-                // Вычисление MD5-хэша от преобразованного представления
-                String hash = md5Hasher.getHash(converted);
+                String hash = hasher.getHash(converted);
                 entries.add(new DictionaryEntry(element, converted, hash));
             }
         }
@@ -71,19 +53,5 @@ public class DictionarySorter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    // Пример использования класса
-    public static void main(String[] args) {
-        String inputFile = "unicode_combinations1.txt";    // исходный словарь
-        String outputFile = "sorted_unicode_combinations.txt"; // новый отсортированный словарь
-        int symbolsPerElement = 1; // длина комбинации (для примера используется 1)
-
-        // Для преобразования используется диапазон символов "0123456789" (десятичная система)
-        UnicodeConverter converter = new UnicodeConverter("0123456789");
-        MD5Hasher md5Hasher = new MD5Hasher();
-
-        DictionarySorter sorter = new DictionarySorter();
-        sorter.sortDictionary(inputFile, outputFile, symbolsPerElement, converter, md5Hasher);
     }
 }

@@ -1,22 +1,36 @@
 package org.example;
 
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
-        UnicodeConverter unicodeConverter = new UnicodeConverter("0123456789qwert");
+        UnicodeConverter unicodeConverter = new UnicodeConverter("0123456789");
+        /*
+        UnicodeCombinationsGenerator generator = new UnicodeCombinationsGenerator();
+        generator.generateFile("unicode_combinations1.txt", 1);
+         */
+        SymbolFileAccessor accessor = new SymbolFileAccessor("sortMD5_unicode_combinations1.txt", 1);
+        MD5Hasher md5 = new MD5Hasher();
 
-        UnicodeCombinationsGenerator generator = new UnicodeCombinationsGenerator("unicode_combinations.txt", 2);
-        //generator.generateFile();
-        String filePath = "unicode_combinations.txt";
-        int symbolsPerElement = 2;
 
-        SymbolFileAccessor accessor = new SymbolFileAccessor(filePath, symbolsPerElement);
-        long elementIndex = accessor.getTotalElements() / 2;
-        String element = accessor.getElement(elementIndex);
-        if (element != null ) {
-            System.out.println("Элемент с индексом " + elementIndex + ":");
-            System.out.println(unicodeConverter.unicodeToRangeString(element));
-        } else {
-            System.out.println("Элемент с индексом " + elementIndex + " не найден (индекс вне диапазона).");
+        /*DictionarySorter dictionarySorter = new DictionarySorter();
+        dictionarySorter.sortDictionary("unicode_combinations1.txt", "sortMD5_unicode_combinations1.txt", 1, unicodeConverter, md5);
+         */
+        BinaryHashSearcher searchHash = new BinaryHashSearcher("sortMD5_unicode_combinations1.txt", 1, unicodeConverter, md5);
+        Scanner scanner = new Scanner(System.in);
+        String hash, result = "";
+        long startTime, endTime = 0;
+        while (true){
+            System.out.println("MD5 hash для расшифровки: ");
+            hash = scanner.next();
+
+            startTime = System.currentTimeMillis();
+            result = searchHash.search(hash);
+            endTime = System.currentTimeMillis();
+
+
+            System.out.println("Результат: " + result);
+            System.out.println("Время выполнения: " + (endTime - startTime) + " милисекунд");
         }
     }
 }

@@ -1,9 +1,7 @@
-package org.example;
-
 public class UnicodeConverter {
 
-    public static String rangeCharacter = "";
-    private Integer base;
+    public String rangeCharacter;
+    private final Integer base;
 
     public UnicodeConverter(String rangeCharacter) {
         this.rangeCharacter = rangeCharacter;
@@ -12,9 +10,9 @@ public class UnicodeConverter {
 
     public String unicodeToBase(String unicode) {
         unicode = new StringBuilder(unicode).reverse().toString();
-        Long valuetsChars = 0l;
+        long valuetsChars = 0L;
         for (int i = 0; i < unicode.length(); i++) {
-            valuetsChars += ((long) unicode.charAt(i) * (long) Math.pow((double) (int) Character.MAX_VALUE, (double) i));
+            valuetsChars += ((long) unicode.charAt(i) * (long) Math.pow((int) Character.MAX_VALUE, i));
         }
         return Long.toString(valuetsChars, base);
     }

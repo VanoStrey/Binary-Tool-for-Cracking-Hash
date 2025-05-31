@@ -1,9 +1,5 @@
-package org.example;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.io.*;
 
 public class UnicodeCombinationsGenerator {
 

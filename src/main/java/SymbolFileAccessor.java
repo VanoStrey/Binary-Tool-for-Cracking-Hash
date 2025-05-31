@@ -1,12 +1,10 @@
-package org.example;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 
 public class SymbolFileAccessor {
-    private String filePath;
-    private int symbolsPerElement;
+    private final String filePath;
+    private final int symbolsPerElement;
 
     public SymbolFileAccessor(String filePath, int symbolsPerElement) {
         this.filePath = filePath;
@@ -15,7 +13,7 @@ public class SymbolFileAccessor {
 
     public String getElement(long index) {
         int bytesPerChar = 2; // UTF-16BE → каждый символ занимает ровно 2 байта
-        long byteOffset = (long) index * symbolsPerElement * bytesPerChar;
+        long byteOffset = index * symbolsPerElement * bytesPerChar;
         int bytesToRead = symbolsPerElement * bytesPerChar;
 
         try (RandomAccessFile raf = new RandomAccessFile(filePath, "r")) {
@@ -42,7 +40,7 @@ public class SymbolFileAccessor {
         int bytesPerChar = 2; // UTF-16BE → каждый символ занимает ровно 2 байта
         try (RandomAccessFile raf = new RandomAccessFile(filePath, "r")) {
             long fileLength = raf.length();
-            return fileLength / (symbolsPerElement * bytesPerChar);
+            return fileLength / ((long) symbolsPerElement * bytesPerChar);
         } catch (IOException e) {
             e.printStackTrace();
             return -1;

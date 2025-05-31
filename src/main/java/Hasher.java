@@ -1,5 +1,5 @@
-package org.example;
-
 public interface Hasher {
+    String getName();
+
     String getHash(String input);
 }

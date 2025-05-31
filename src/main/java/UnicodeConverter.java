@@ -10,11 +10,11 @@ public class UnicodeConverter {
 
     public String unicodeToBase(String unicode) {
         unicode = new StringBuilder(unicode).reverse().toString();
-        long valuetsChars = 0L;
+        long valuesChars = 0L;
         for (int i = 0; i < unicode.length(); i++) {
-            valuetsChars += ((long) unicode.charAt(i) * (long) Math.pow((int) Character.MAX_VALUE, i));
+            valuesChars += ((long) unicode.charAt(i) * (long) Math.pow((int) Character.MAX_VALUE, i));
         }
-        return Long.toString(valuetsChars, base);
+        return Long.toString(valuesChars, base);
     }
 
     public String unicodeToRangeString(String unicode) {

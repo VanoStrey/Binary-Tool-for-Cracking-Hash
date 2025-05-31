@@ -1,3 +1,11 @@
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -8,7 +16,7 @@ public class Main {
 
     public static void main(String[] args) {
         UnicodeConverter unicodeConverter = new UnicodeConverter("0123456789");
-        SymbolFileAccessor accessor = new SymbolFileAccessor("sortSHA256_UC2_2^23.txt", 2);
+        SymbolFileAccessor accessor = new SymbolFileAccessor("UC2_2^25_test.txt", 2);
         UnicodeCombinationsGenerator generator = new UnicodeCombinationsGenerator();
         DictionarySplitter dictionarySplitter = new DictionarySplitter(accessor);
         DictionarySorter dictionarySorter = new DictionarySorter();
@@ -16,23 +24,21 @@ public class Main {
         SHA1Hash sha1 = new SHA1Hash();
         MD5Hash md5 = new MD5Hash();
 
+        /*
+        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortMD5_UC2_2^25.txt", 2), unicodeConverter, md5));
+        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortSHA1_UC2_2^25.txt", 2), unicodeConverter, sha1));
+        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortSHA256_UC2_2^25.txt", 2), unicodeConverter, sha256));
+        startTekegramBot();
 
-        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortMD5_UC2_2^23.txt", 2), unicodeConverter, md5));
-        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortSHA1_UC2_2^23.txt", 2), unicodeConverter, sha1));
-        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortSHA256_UC2_2^23.txt", 2), unicodeConverter, sha256));
+        long range = accessor.getTotalElements()/256;
+        dictionarySplitter.split("UC2_2^25_test2.txt", range, range * 2);
+         */
 
-        //dictionarySplitter.split("UC2_2^23.txt", 0, accessor.getTotalElements() / 512);
-        //dictionarySorter.sort("sortSHA1_UC2_2^23.txt", accessor, unicodeConverter, sha1);
-        //dictionarySorter.sort("sortSHA256_UC2_2^23.txt", accessor, unicodeConverter, sha256);
-
-        //menuApp(accessor, unicodeConverter, sha256);
+        //dictionarySorter.sort("sortmd5_UC2_2^25.txt", accessor, unicodeConverter, md5);
+        dictionarySorter.sort("sortSHA1_UC2_2^25.txt", accessor, unicodeConverter, sha1);
+        dictionarySorter.sort("sortSHA256_UC2_2^25.txt", accessor, unicodeConverter, sha256);
 
 
-
-
-        System.out.println(universalCrackHash(md5.getHash("7654321")));
-        System.out.println(universalCrackHash(sha1.getHash("7654321")));
-        System.out.println(universalCrackHash(sha256.getHash("7654321")));
     }
 
     public static String universalCrackHash(String hash) {
@@ -44,19 +50,26 @@ public class Main {
         };
     }
 
+    private static void startTekegramBot(){
+        try {
+            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            botsApi.registerBot(new TelegramBot());
+            System.out.println("🚀 Бот успешно запущен!");
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 
-
-    private static void menuApp(SymbolFileAccessor accessor, UnicodeConverter unicodeConverter, Hasher hasher) {
-        BinaryHashSearcher searchHash = new BinaryHashSearcher(accessor, unicodeConverter, hasher);
+    private static void menuApp() {
         Scanner scanner = new Scanner(System.in);
         String hash, result;
         long startTime, endTime;
         while (true) {
-            System.out.println(hasher.getName() + " hash для расшифровки: ");
+            System.out.println("hash для расшифровки: ");
             hash = scanner.next();
 
             startTime = System.currentTimeMillis();
-            result = searchHash.search(hash);
+            result = universalCrackHash(hash);
             endTime = System.currentTimeMillis();
 
 

@@ -28,6 +28,6 @@ public class BinaryHashSearcher {
                 return element;
             }
         }
-        return null;
+        return "hash not found";
     }
 }

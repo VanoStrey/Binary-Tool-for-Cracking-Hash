@@ -28,7 +28,23 @@ public class Main {
         //menuApp(accessor, unicodeConverter, sha256);
 
 
+
+
+        System.out.println(universalCrackHash(md5.getHash("7654321")));
+        System.out.println(universalCrackHash(sha1.getHash("7654321")));
+        System.out.println(universalCrackHash(sha256.getHash("7654321")));
     }
+
+    public static String universalCrackHash(String hash) {
+        return switch (hash.length()) {
+            case 32 -> binarySearch.get(0).search(hash);
+            case 40 -> binarySearch.get(1).search(hash);
+            case 64 -> binarySearch.get(2).search(hash);
+            default -> "unavailable hash type";
+        };
+    }
+
+
 
     private static void menuApp(SymbolFileAccessor accessor, UnicodeConverter unicodeConverter, Hasher hasher) {
         BinaryHashSearcher searchHash = new BinaryHashSearcher(accessor, unicodeConverter, hasher);
@@ -48,14 +64,4 @@ public class Main {
             System.out.println("Время выполнения: " + (endTime - startTime) + " милисекунд\n");
         }
     }
-
-    public static String universalCrackHash(String hash) {
-        return switch (hash.length()) {
-            case 32 -> binarySearch.get(0).search(hash);
-            case 40 -> binarySearch.get(1).search(hash);
-            case 64 -> binarySearch.get(2).search(hash);
-            default -> "Неизвесный тип шифрования";
-        };
-    }
-
 }

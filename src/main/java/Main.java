@@ -2,10 +2,6 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -16,27 +12,60 @@ public class Main {
 
     public static void main(String[] args) {
         UnicodeConverter unicodeConverter = new UnicodeConverter("0123456789");
-        SymbolFileAccessor accessor = new SymbolFileAccessor("UC2_2^25_test.txt", 2);
+        SymbolFileAccessor accessor = new SymbolFileAccessor("UC2.txt", 2);
         UnicodeCombinationsGenerator generator = new UnicodeCombinationsGenerator();
-        DictionarySplitter dictionarySplitter = new DictionarySplitter(accessor);
+        DictionarySplitter dictionarySplitter = new DictionarySplitter("UC2.txt", 2);
         DictionarySorter dictionarySorter = new DictionarySorter();
         SHA256Hash sha256 = new SHA256Hash();
         SHA1Hash sha1 = new SHA1Hash();
         MD5Hash md5 = new MD5Hash();
 
-        /*
-        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortMD5_UC2_2^25.txt", 2), unicodeConverter, md5));
-        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortSHA1_UC2_2^25.txt", 2), unicodeConverter, sha1));
-        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortSHA256_UC2_2^25.txt", 2), unicodeConverter, sha256));
-        startTekegramBot();
 
-        long range = accessor.getTotalElements()/256;
-        dictionarySplitter.split("UC2_2^25_test2.txt", range, range * 2);
+
+        /*
+        Runtime runtime = Runtime.getRuntime();
+        long maxMemory = runtime.maxMemory(); // Максимально доступная память
+        long allocatedMemory = runtime.totalMemory(); // Выделенная память
+        long freeMemory = runtime.freeMemory(); // Свободная память
+
+        System.out.println("🔍 Max Memory: " + (maxMemory / 1024 / 1024) + " MB");
+        System.out.println("📝 Allocated Memory: " + (allocatedMemory / 1024 / 1024) + " MB");
+        System.out.println("✅ Free Memory: " + (freeMemory / 1024 / 1024) + " MB");
+        System.out.println("🔥 Max Memory: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + " MB");
+
+
+
+
+        //dictionarySplitter.split("UC2_2^26.txt", 0, accessor.getTotalElements()/64);
+
+        dictionarySorter.testSort("UC2_2^26.txt", "sortMD5_UC2_2^26.txt", 2, unicodeConverter, md5);
+        dictionarySorter.testSort("UC2_2^26.txt", "sortSHA1_UC2_2^26.txt", 2, unicodeConverter, sha1);
+        dictionarySorter.testSort("UC2_2^26.txt", "sortSHA256_UC2_2^26.txt", 2, unicodeConverter, sha256);
+
+
          */
 
+
+        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortMD5_UC2_2^26.txt", 2), unicodeConverter, md5));
+        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortSHA1_UC2_2^26.txt", 2), unicodeConverter, sha1));
+        binarySearch.add(new BinaryHashSearcher(new SymbolFileAccessor("sortSHA256_UC2_2^26.txt", 2), unicodeConverter, sha256));
+        startTekegramBot();
+
+
+        /*
+        long range = accessor.getTotalElements()/1024;
+        System.out.println(range);
+        dictionarySplitter.split("UC2_2^22.txt", 0, range);
+
+
+         */
+
+
+
+
         //dictionarySorter.sort("sortmd5_UC2_2^25.txt", accessor, unicodeConverter, md5);
-        dictionarySorter.sort("sortSHA1_UC2_2^25.txt", accessor, unicodeConverter, sha1);
-        dictionarySorter.sort("sortSHA256_UC2_2^25.txt", accessor, unicodeConverter, sha256);
+        //dictionarySorter.sort("sortSHA1_UC2_2^25.txt", accessor, unicodeConverter, sha1);
+        //dictionarySorter.sort("sortSHA256_UC2_2^25.txt", accessor, unicodeConverter, sha256);
 
 
     }

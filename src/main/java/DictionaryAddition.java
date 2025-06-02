@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.nio.file.*;
 
 public class DictionaryAddition {
-    public void Add(String path1, String path2){
+    public void add(String path1, String path2){
         Path file1 = Path.of(path1);
         Path file2 = Path.of(path2);
 

@@ -20,17 +20,21 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText();
             String chatId = update.getMessage().getChatId().toString();
+            String messageText = update.getMessage().getText();
 
-            String response;
             if (messageText.equalsIgnoreCase("/start")) {
-                response = "👋 Привет! Отправь мне хэш, и я моментально его взломаю\uD83D\uDE08\uD83D\uDE08\uD83D\uDE08.\nПоддерживаемые алгоритмы:\nMD5\nSHA1\nSHA256\n\nЗашифрованные положительные числа от 1 до 2^26";
-            } else {
-                response = Main.universalCrackHash(messageText); // Вызываем твою функцию
-            }
+                sendResponse(chatId, "❗\uFE0FMade with @VanoStrey❗\uFE0F\nThis is a prototype program, so the variety of symbols in combinations is limited. But the algorithm allows you to use any characters in combinations.");
+                sendResponse(chatId, "👋 Hi! Send me the hash.\nAnd I'll crack it right away.\uD83D\uDE08\uD83D\uDE08\uD83D\uDE08.\nSupported algorithms:\n\nMD5\nSHA1\nSHA256\n\nThe dictionary contains natural numbers from 1 to 1.000.000.000");
 
-            sendResponse(chatId, response);
+            } else {
+                long startTime = System.currentTimeMillis();
+                String result = Main.universalCrackHash(messageText);
+                long endTime = System.currentTimeMillis();
+
+                sendResponse(chatId, result);
+                sendResponse(chatId, "⏳  " + (endTime - startTime) + " ms");
+            }
         }
     }
 

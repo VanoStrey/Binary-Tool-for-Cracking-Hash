@@ -3,6 +3,7 @@ import java.io.RandomAccessFile;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class DictionarySplitter {
@@ -12,6 +13,29 @@ public class DictionarySplitter {
     public DictionarySplitter(String filePath, int symbolsPerElement) {
         this.filePath = filePath;
         this.symbolsPerElement = symbolsPerElement;
+    }
+    public void slitAll(String outPathDirectory, long countChunks){
+        try {
+            Path dirPath = Path.of(outPathDirectory);
+            Files.createDirectories(dirPath); // 🔥 Создаём папку, если её нет
+
+            try (RandomAccessFile raf = new RandomAccessFile(filePath, "r")) {
+                long fileLength = raf.length();
+                long chunkSize = fileLength / countChunks; // 🔥 Размер каждого куска
+
+                for (long i = 0; i < countChunks; i++) {
+                    long minIndex = i * chunkSize / (symbolsPerElement * 2L);
+                    long maxIndex = (i == countChunks - 1) ? fileLength / (symbolsPerElement * 2L) : (i + 1) * chunkSize / (symbolsPerElement * 2L);
+
+                    String chunkPath = outPathDirectory + "/chunk_" + i + ".txt";
+                    split(chunkPath, minIndex, maxIndex); // 🔥 Используем существующий метод
+                }
+            }
+
+            System.out.println("✅ Разделение завершено! Всего кусков: " + countChunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void split(String outPath, long minIndex, long maxIndex) {

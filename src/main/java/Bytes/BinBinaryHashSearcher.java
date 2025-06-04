@@ -1,13 +1,13 @@
-import Bytes.*;
+package Bytes;
 
-public class BinaryHashSearcher {
+public class BinBinaryHashSearcher {
     private final Hasher hasher;
-    private final SymbolFileAccessor accessor;
-    private final UnicodeConverter unicodeConverter;
+    private final BinFileAccessor accessor;
+    private final BinBaseConverter converter;
 
-    public BinaryHashSearcher(SymbolFileAccessor accessor, UnicodeConverter unicodeConverter, Hasher hasher) {
+    public BinBinaryHashSearcher(BinFileAccessor accessor, BinBaseConverter converter, Hasher hasher) {
         this.hasher = hasher;
-        this.unicodeConverter = unicodeConverter;
+        this.converter = converter;
         this.accessor = accessor;
     }
 
@@ -18,7 +18,7 @@ public class BinaryHashSearcher {
 
         while (low <= high) {
             long mid = low + ((high - low) / 2);
-            String element = unicodeConverter.unicodeToRangeString(accessor.getElement(mid));
+            String element = converter.convertToBaseString(accessor.getElement(mid));
             String computedHash = hasher.getHash(element);
 
             int cmp = computedHash.compareTo(targetHash);

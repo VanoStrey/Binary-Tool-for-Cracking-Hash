@@ -1,4 +1,7 @@
-import java.security.*;
+package Bytes;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class SHA1Hash implements Hasher {
 

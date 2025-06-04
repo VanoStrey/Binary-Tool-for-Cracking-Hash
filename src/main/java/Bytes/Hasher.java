@@ -1,3 +1,5 @@
+package Bytes;
+
 public interface Hasher {
     String getName();
 

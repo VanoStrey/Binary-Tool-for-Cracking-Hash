@@ -31,22 +31,18 @@ public class Main {
         //menuApp();
         //startTelegramBot();
 
-
-        BinCombinationGenerate binCombinationGenerate = new BinCombinationGenerate(-1L);
-        BinBaseConverter binBaseConverter = new BinBaseConverter("0123456789");
-        BinDictionarySorter binDictionarySorter = new BinDictionarySorter();
         long rangeCombinations = (long) Math.pow(2, 26);
 
+        BinCombinationGenerate binCombinationGenerate = new BinCombinationGenerate((5 * rangeCombinations) - 1L);
+        BinBaseConverter binBaseConverter = new BinBaseConverter("0123456789");
+        BinDictionarySorter binDictionarySorter = new BinDictionarySorter();
+        /*
+        for (int i = 5; i < 16; i++) {
+            binDictionarySorter.generateAndSortInMemory("SHA256_2^26/chunk_" + i + ".bin", 5, binBaseConverter, sha256, rangeCombinations, binCombinationGenerate);
+        }*/ctionari
 
-        //binDictionarySorter.sort("output.bin", "outputSort.bin", 5, binBaseConverter, sha256);
-        //binDictionarySorter.generateAndSortInMemory("SHA256_2^26/chunk_0.bin", 5, binBaseConverter, sha256, rangeCombinations, binCombinationGenerate);
-
-        BinFileAccessor binAccessor = new BinFileAccessor("SHA256_2^26_chunk_0.bin");
-
-        BinBinaryHashSearcher binBinaryHashSearcher = new BinBinaryHashSearcher(binAccessor, binBaseConverter, sha256);
         initBinBinarySearchHash(binBaseConverter, sha256);
-
-        menuApp();
+        startTelegramBot();
     }
 
     public static String BinCrackSHA256(String hash) throws InterruptedException {
@@ -76,7 +72,7 @@ public class Main {
     }
 
     private static void initBinBinarySearchHash(BinBaseConverter converter, Hasher sha256) {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 16; i++) {
             binBinarySearch.add(new BinBinaryHashSearcher(new BinFileAccessor("SHA256_2^26/chunk_" + i + ".bin"), converter, sha256));
         }
     }

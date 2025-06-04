@@ -4,8 +4,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class TelegramBot extends TelegramLongPollingBot {
-    private static final String BOT_USERNAME = "BinaryToolCrackingHash_bot";
-    private static final String BOT_TOKEN = "7794808374:AAHThdCTXmtlGREBggWFeC_gL2EYsKmPsHY";
+    private static final String BOT_USERNAME = "";
+    private static final String BOT_TOKEN = "";
 
     @Override
     public String getBotUsername() {
@@ -29,7 +29,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             } else {
                 long startTime = System.currentTimeMillis();
-                String result = Main.universalCrackHash(messageText);
+                String result = null;
+                try {
+                    result = Main.BinCrackSHA256(messageText);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 long endTime = System.currentTimeMillis();
 
                 sendResponse(chatId, result);

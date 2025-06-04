@@ -1,8 +1,5 @@
 package Bytes;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-
 public class BinCombinationGenerate {
     private static final int BLOCK_SIZE = 5; // 5 байт на число
     private long currentValue;

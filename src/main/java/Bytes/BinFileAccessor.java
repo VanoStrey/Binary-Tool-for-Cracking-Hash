@@ -2,7 +2,6 @@ package Bytes;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.math.BigInteger;
 
 public class BinFileAccessor {
     private final String filePath;

@@ -2,7 +2,6 @@ package Bytes;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 
 public class BinFileWriter {
     private static final int BLOCK_COUNT = 1_000_000; // 🔹 Количество блоков (пример)

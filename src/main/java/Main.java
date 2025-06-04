@@ -39,26 +39,14 @@ public class Main {
 
 
         //binDictionarySorter.sort("output.bin", "outputSort.bin", 5, binBaseConverter, sha256);
-        long startTime, endTime;
-
-
-        startTime = System.currentTimeMillis();
         //binDictionarySorter.generateAndSortInMemory("SHA256_2^26/chunk_0.bin", 5, binBaseConverter, sha256, rangeCombinations, binCombinationGenerate);
-        endTime = System.currentTimeMillis();
-        System.out.println("Время сортировки: " + ((double) (endTime - startTime) / 1000) / 60 + " минут\n");
 
         BinFileAccessor binAccessor = new BinFileAccessor("SHA256_2^26_chunk_0.bin");
 
         BinBinaryHashSearcher binBinaryHashSearcher = new BinBinaryHashSearcher(binAccessor, binBaseConverter, sha256);
         initBinBinarySearchHash(binBaseConverter, sha256);
-        String result = "";
-        startTime = System.currentTimeMillis();
-        result = BinCrackSHA256(sha256.getHash("265432101"));
-        endTime = System.currentTimeMillis();
 
-
-        System.out.println("Результат: " + result);
-        System.out.println("Время выполнения: " + (endTime - startTime) + " милисекунд\n");
+        menuApp();
     }
 
     public static String BinCrackSHA256(String hash) throws InterruptedException {
@@ -151,7 +139,7 @@ public class Main {
         return "not found"; // 🔥 `executor` остаётся активным для новых запросов
     }
 
-    private static void menuApp() {
+    private static void menuApp() throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         String hash, result;
         long startTime, endTime;
@@ -160,7 +148,7 @@ public class Main {
             hash = scanner.next();
 
             startTime = System.currentTimeMillis();
-            result = universalCrackHash(hash);
+            result = BinCrackSHA256(hash);
             endTime = System.currentTimeMillis();
 
 

@@ -1,5 +1,7 @@
 package Bytes;
 
+import java.math.BigInteger;
+
 public class BinBinaryHashSearcher {
     private final Hasher hasher;
     private final BinFileAccessor accessor;
@@ -11,23 +13,25 @@ public class BinBinaryHashSearcher {
         this.accessor = accessor;
     }
 
-    public String search(String targetHash) {
+    public String search(String targetHashHEX) {
         long totalElements = accessor.getTotalElements();
         long low = 0;
         long high = totalElements - 1;
+        byte[] targetHash = hasher.hexToBytes(targetHashHEX);
 
         while (low <= high) {
             long mid = low + ((high - low) / 2);
-            String element = converter.convertToBaseString(accessor.getElement(mid));
-            String computedHash = hasher.getHash(element);
+            byte[] elementBytes = accessor.getElement(mid);
+            String elementString = converter.convertToBaseString(elementBytes); // 🔥 Преобразование
+            byte[] computedHash = hasher.getBinHash(elementString); // 🔥 Хеширование `String`
 
-            int cmp = computedHash.compareTo(targetHash);
+            int cmp = new BigInteger(1, computedHash).compareTo(new BigInteger(1, targetHash));
             if (cmp < 0) {
-                low = mid + 1;
+                low = mid + 1; // ✅ Исправлено
             } else if (cmp > 0) {
-                high = mid - 1;
+                high = mid - 1; // ✅ Исправлено
             } else {
-                return element;
+                return elementString; // 🔥 Возвращаем найденный элемент
             }
         }
         return "";

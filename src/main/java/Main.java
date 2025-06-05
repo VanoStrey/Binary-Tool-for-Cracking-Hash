@@ -1,15 +1,19 @@
 import Bytes.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
 
 
 public class Main {
 
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
     public static ArrayList<ArrayList<BinaryHashSearcher>> binarySearch = new ArrayList<>();
     public static ArrayList<BinBinaryHashSearcher> binBinarySearch = new ArrayList<>();
     private static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -26,21 +30,15 @@ public class Main {
         SHA1Hash sha1 = new SHA1Hash();
         MD5Hash md5 = new MD5Hash();
 
-        //dictionarySplitter.slitAll("UC2_2^30_16chunks", 16);
-        //initBinarySearchHash(unicodeConverter, md5, sha1, sha256);
-        //menuApp();
-        //startTelegramBot();
+        long rangeCombinations = (long) Math.pow(2, 27);
 
-        long rangeCombinations = (long) Math.pow(2, 26);
-
-        BinCombinationGenerate binCombinationGenerate = new BinCombinationGenerate((5 * rangeCombinations) - 1L);
+        BinCombinationGenerate binCombinationGenerate = new BinCombinationGenerate((rangeCombinations * 31) -1L);
         BinBaseConverter binBaseConverter = new BinBaseConverter("0123456789");
         BinDictionarySorter binDictionarySorter = new BinDictionarySorter();
-        /*
-        for (int i = 5; i < 16; i++) {
-            binDictionarySorter.generateAndSortInMemory("SHA256_2^26/chunk_" + i + ".bin", 5, binBaseConverter, sha256, rangeCombinations, binCombinationGenerate);
-        }*/ctionari
 
+        for (int i = 32; i < 80; i++) {
+            binDictionarySorter.generateAndSortInMemory("SHA256_2^27/chunk_" + i + ".bin", 5, binBaseConverter, sha256, rangeCombinations, binCombinationGenerate);
+        }
         initBinBinarySearchHash(binBaseConverter, sha256);
         startTelegramBot();
     }
@@ -72,8 +70,8 @@ public class Main {
     }
 
     private static void initBinBinarySearchHash(BinBaseConverter converter, Hasher sha256) {
-        for (int i = 0; i < 16; i++) {
-            binBinarySearch.add(new BinBinaryHashSearcher(new BinFileAccessor("SHA256_2^26/chunk_" + i + ".bin"), converter, sha256));
+        for (int i = 32; i < 80; i++) {
+            binBinarySearch.add(new BinBinaryHashSearcher(new BinFileAccessor("SHA256_2^27/chunk_" + i + ".bin", 5), converter, sha256));
         }
     }
 

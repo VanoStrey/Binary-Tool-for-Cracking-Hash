@@ -27,4 +27,24 @@ public class MD5Hash implements Hasher {
             throw new RuntimeException(e);
         }
     }
+
+    public byte[] getBinHash(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            return md.digest(input.getBytes());
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Ошибка: Алгоритм MD5 не найден!", e);
+        }
+    }
+
+    public byte[] hexToBytes(String hex) {
+        int length = hex.length();
+        byte[] bytes = new byte[length / 2];
+
+        for (int i = 0; i < length; i += 2) {
+            bytes[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+                    + Character.digit(hex.charAt(i + 1), 16));
+        }
+        return bytes;
+    }
 }

@@ -9,7 +9,6 @@ public class BinBaseConverter {
         this.base = rangeChars.length();
     }
 
-
     public String convertToBaseString(byte[] bytes){
 
         long decimalValue = 0;

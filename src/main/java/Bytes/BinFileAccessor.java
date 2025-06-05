@@ -5,16 +5,18 @@ import java.io.RandomAccessFile;
 
 public class BinFileAccessor {
     private final String filePath;
-    private static final int ELEMENT_SIZE = 5;
+    private final int elementSize;
 
-    public BinFileAccessor(String filePath) {
+    public BinFileAccessor(String filePath, int elementSize) {
+
         this.filePath = filePath;
+        this.elementSize = elementSize;
     }
 
     // 🔹 Получает число по индексу
     public byte[] getElement(long index) {
-        long byteOffset = index * ELEMENT_SIZE; // Смещение по файлу
-        byte[] buffer = new byte[ELEMENT_SIZE];
+        long byteOffset = index * elementSize; // Смещение по файлу
+        byte[] buffer = new byte[elementSize];
 
         try (RandomAccessFile raf = new RandomAccessFile(filePath, "r")) {
             if (byteOffset >= raf.length()) {
@@ -37,7 +39,7 @@ public class BinFileAccessor {
         try (RandomAccessFile raf = new RandomAccessFile(filePath, "r")) {
             long fileLength = raf.length();
 
-            return raf.length() / ELEMENT_SIZE; // 🔥 Количество 5-байтовых чисел
+            return raf.length() / elementSize; // 🔥 Количество 5-байтовых чисел
         } catch (IOException e) {
             e.printStackTrace();
             return -1;

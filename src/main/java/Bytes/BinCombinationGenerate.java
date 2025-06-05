@@ -14,7 +14,7 @@ public class BinCombinationGenerate {
     }
 
     public static byte[] encode(long number) {
-        byte[] result = new byte[5];
+        byte[] result = new byte[BLOCK_SIZE];
         for (int i = 4; i >= 0; i--) {
             result[i] = (byte) (number & 0xFF); // Берём младший байт
             number >>= 8; // Смещаем число вправо на 8 бит
@@ -23,13 +23,9 @@ public class BinCombinationGenerate {
     }
     public static long decode(byte[] bytes) {
         long number = 0;
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < BLOCK_SIZE; i++) {
             number = (number << 8) | (bytes[i] & 0xFF); // Добавляем байт в число
         }
         return number;
     }
-
-
-
-
 }

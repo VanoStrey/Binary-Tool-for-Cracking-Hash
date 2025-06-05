@@ -5,39 +5,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
+import java.math.BigInteger;
+
 
 public class BinDictionarySorter {
 
     private static class DictionaryEntry {
         byte[] bytes;
-        String hash;
+        byte[] hash;
 
-        DictionaryEntry(byte[] bytes, String hash) {
+        DictionaryEntry(byte[] bytes, byte[] hash) {
             this.bytes = bytes;
             this.hash = hash;
         }
-    }
-
-    public void sort(String inputFilePath, String outputFilePath, int elementSize, BinBaseConverter converter, Hasher hasher) throws IOException {
-        byte[] fileData = Files.readAllBytes(Path.of(inputFilePath));
-        List<DictionaryEntry> entries = new ArrayList<>();
-
-        for (int i = 0; i < fileData.length; i += elementSize) {
-            byte[] buffer = Arrays.copyOfRange(fileData, i, i + elementSize);
-            String combination = converter.convertToBaseString(buffer);
-            String hash = hasher.getHash(combination);
-            entries.add(new DictionaryEntry(buffer, hash));
-        }
-
-        entries.sort(Comparator.comparing(entry -> entry.hash));
-
-        try (FileOutputStream fos = new FileOutputStream(outputFilePath)) {
-            for (DictionaryEntry entry : entries) {
-                fos.write(entry.bytes);
-            }
-        }
-
-        System.out.println("✅ Отсортированный `.bin` записан: " + outputFilePath);
     }
 
     public void generateAndSortInMemory(String outputFilePath, int elementSize, BinBaseConverter converter, Hasher hasher, long count, BinCombinationGenerate generator) throws IOException, InterruptedException {
@@ -47,8 +27,7 @@ public class BinDictionarySorter {
         for (long i = 0; i < count; i++) {
             futures.add(executor.submit(() -> {
                 byte[] bytes = generator.nextCombination();
-                String combination = converter.convertToBaseString(bytes);
-                String hash = hasher.getHash(combination);
+                byte[] hash = hasher.getBinHash(converter.convertToBaseString(bytes));
                 return new DictionaryEntry(bytes, hash);
             }));
         }
@@ -66,7 +45,7 @@ public class BinDictionarySorter {
         }
 
         System.out.println("🚀 Начинаем сортировку...");
-        entries.sort(Comparator.comparing(entry -> entry.hash));
+        entries.sort(Comparator.comparing(entry -> new BigInteger(1, entry.hash)));
 
         byte[] fileData = new byte[elementSize * entries.size()];
         int index = 0;

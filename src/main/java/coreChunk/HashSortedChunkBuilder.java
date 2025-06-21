@@ -46,8 +46,10 @@ public class HashSortedChunkBuilder {
         System.out.println("📦 Обработка чанка #" + chunkIndex);
 
         // 1) Клонируем массив ссылок (raw остаётся тем же)
-        Entry[] chunkEntries = Arrays.copyOf(masterEntries, totalElements);
-
+        Entry[] chunkEntries = new Entry[totalElements];
+        for (int i = 0; i < totalElements; i++) {
+            chunkEntries[i] = new Entry(Arrays.copyOf(masterEntries[i].raw, elementSize));
+        }
         // 2) Генерим хэши для каждого элемента
         long t1 = System.currentTimeMillis();
         for (int i = 0; i < totalElements; i++) {

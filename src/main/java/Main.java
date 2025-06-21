@@ -5,6 +5,9 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -15,27 +18,38 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         SHA256Hash sha256 = new SHA256Hash();
-        SHA1Hash sha1 = new SHA1Hash();
-        MD5Hash md5 = new MD5Hash();
-
-
         ChunkValueEncoding chunkValueEncoding = new ChunkValueEncoding("0123456789");
-        /*initThreeByteChunckSearch(chunkValueEncoding, sha256);
-        menuApp();
-
-         */
+        HashSortedChunkBuilder builder = new HashSortedChunkBuilder("master_chunk.bin", sha256, chunkValueEncoding);
+        String outputDir = "chuncks_SHA256_0123456789";
 
 
-        HashSortedChunkBuilder hashSortedChunkBuilder = new HashSortedChunkBuilder("master_chunk.bin", sha256, chunkValueEncoding);
-        String pathDictionary = "chuncks_SHA256_0123456789";
-        for (int i = 8; i < 256; i++) {
-            hashSortedChunkBuilder.sortChunkToFile(pathDictionary, i);
+        int threadCount = Runtime.getRuntime().availableProcessors();
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+
+        for (int chunkIndex = 12; chunkIndex < 256; chunkIndex++) {
+            final int index = chunkIndex;
+            executor.submit(() -> {
+                try {
+                    builder.sortChunkToFile(outputDir, index);
+                } catch (IOException e) {
+                    System.err.println("Ошибка при обработке чанка " + index + ": " + e.getMessage());
+                }
+            });
         }
 
+        executor.shutdown();
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        System.out.println("✅ Все чанки завершены");
 
+
+
+
+
+        initChunkSearch(outputDir, chunkValueEncoding, sha256);
+        startTelegramBot();
     }
 
-    public static String ThreeByteCrackSHA256(String hash) throws InterruptedException {
+    public static String CrackSHA256(String hash) throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Future<String>> futures = new ArrayList<>();
 
@@ -46,26 +60,36 @@ public class Main {
         executor.shutdown();
         executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 
-        StringBuilder rezult = new StringBuilder();
+        StringBuilder result = new StringBuilder();
         for (Future<String> future : futures) {
             try {
                 String found = future.get();
                 if (found != null) {
-                    rezult.append(found); // 🔥 Объединяем результаты
+                    result.append(found); // 🔥 Объединяем результаты
                 }
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
         }
 
-        return rezult.length() > 0 ? rezult.toString() : "hash not found";
+        return result.length() > 0 ? result.toString() : "hash not found";
     }
 
-    private static void initThreeByteChunckSearch(ChunkValueEncoding converter, Hasher sha256) {
-        for (int i = 0; i < 8; i++) {
-            hashBinarySearch.add(new HashBinarySearch(new ChunkBinaryFileAccessor("chuncks_SHA256_0123456789/chunk_" + i + ".bin"), converter, sha256));
+    private static void initChunkSearch(String dictionaryDir, ChunkValueEncoding converter, Hasher sha256) {
+        for (int i = 0; i < 256; i++) {
+            String path = dictionaryDir + "/chunk_" + i + ".bin";
+            Path chunkPath = Paths.get(path);
+
+            if (!Files.exists(chunkPath)) {
+                System.err.println("⛔ Пропущен: " + chunkPath.getFileName());
+                continue;
+            }
+
+            var accessor = new ChunkBinaryFileAccessor(path);
+            hashBinarySearch.add(new HashBinarySearch(accessor, converter, sha256));
         }
     }
+
 
     private static void startTelegramBot() {
         try {
@@ -86,7 +110,7 @@ public class Main {
             hash = scanner.next();
 
             startTime = System.currentTimeMillis();
-            result = ThreeByteCrackSHA256(hash);
+            result = CrackSHA256(hash);
             endTime = System.currentTimeMillis();
 
 

@@ -1,17 +1,17 @@
-package threeByteChunkOffset;
+package coreChunk;
 
 import hashFunc.Hasher;
 
 import java.math.BigInteger;
 
-public class ThreeByteChunkSearcher {
-    private final ThreeByteFileAccessor accessor;
-    private final ThreeByteBaseConverter converter;
+public class HashBinarySearch {
+    private final ChunkBinaryFileAccessor accessor;
+    private final ChunkValueEncoding converter;
     private final Hasher hasher;
 
-    public ThreeByteChunkSearcher(ThreeByteFileAccessor accessor,
-                                  ThreeByteBaseConverter converter,
-                                  Hasher hasher) {
+    public HashBinarySearch(ChunkBinaryFileAccessor accessor,
+                            ChunkValueEncoding converter,
+                            Hasher hasher) {
         this.accessor = accessor;
         this.converter = converter;
         this.hasher = hasher;

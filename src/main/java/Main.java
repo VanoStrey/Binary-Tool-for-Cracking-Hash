@@ -1,7 +1,5 @@
 import hashFunc.*;
-import threeByteChunkOffset.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import coreChunk.*;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -13,7 +11,7 @@ import java.util.concurrent.*;
 
 public class Main {
 
-    public static ArrayList<ThreeByteChunkSearcher> threeByteChunkSearcher = new ArrayList<>();
+    public static ArrayList<HashBinarySearch> hashBinarySearch = new ArrayList<>();
 
     public static void main(String[] args) throws IOException, InterruptedException {
         SHA256Hash sha256 = new SHA256Hash();
@@ -21,16 +19,19 @@ public class Main {
         MD5Hash md5 = new MD5Hash();
 
 
-        ThreeByteBaseConverter threeByteBaseConverter = new ThreeByteBaseConverter("0123456789");
-        initThreeByteChunckSearch(threeByteBaseConverter, sha256);
+        ChunkValueEncoding chunkValueEncoding = new ChunkValueEncoding("0123456789");
+        /*initThreeByteChunckSearch(chunkValueEncoding, sha256);
         menuApp();
 
-        /*
-        ThreeByteChunkDictionarySorter threeByteChunkDictionarySorter = new ThreeByteChunkDictionarySorter("master_chunk.bin", sha256, threeByteBaseConverter );
-        String pathDictionary = "chuncks_SHA256_0123456789";
-        threeByteChunkDictionarySorter.sortChunkToFile(pathDictionary, 8);
-
          */
+
+
+        HashSortedChunkBuilder hashSortedChunkBuilder = new HashSortedChunkBuilder("master_chunk.bin", sha256, chunkValueEncoding);
+        String pathDictionary = "chuncks_SHA256_0123456789";
+        for (int i = 8; i < 256; i++) {
+            hashSortedChunkBuilder.sortChunkToFile(pathDictionary, i);
+        }
+
 
     }
 
@@ -38,7 +39,7 @@ public class Main {
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Future<String>> futures = new ArrayList<>();
 
-        for (ThreeByteChunkSearcher searcher : threeByteChunkSearcher) {
+        for (HashBinarySearch searcher : hashBinarySearch) {
             futures.add(executor.submit(() -> searcher.search(hash))); // 🔥 Параллельный поиск
         }
 
@@ -60,9 +61,9 @@ public class Main {
         return rezult.length() > 0 ? rezult.toString() : "hash not found";
     }
 
-    private static void initThreeByteChunckSearch(ThreeByteBaseConverter converter, Hasher sha256) {
+    private static void initThreeByteChunckSearch(ChunkValueEncoding converter, Hasher sha256) {
         for (int i = 0; i < 8; i++) {
-            threeByteChunkSearcher.add(new ThreeByteChunkSearcher(new ThreeByteFileAccessor("chuncks_SHA256_0123456789/chunk_" + i + ".bin"), converter, sha256));
+            hashBinarySearch.add(new HashBinarySearch(new ChunkBinaryFileAccessor("chuncks_SHA256_0123456789/chunk_" + i + ".bin"), converter, sha256));
         }
     }
 

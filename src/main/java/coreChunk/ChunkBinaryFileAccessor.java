@@ -1,16 +1,16 @@
-package threeByteChunkOffset;
+package coreChunk;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.nio.file.Path;
 
-public class ThreeByteFileAccessor {
+public class ChunkBinaryFileAccessor {
     private final String filePath;
     private final int elementSize = 3;
     private final int chunkIndex;
 
-    public ThreeByteFileAccessor(String filePath) {
+    public ChunkBinaryFileAccessor(String filePath) {
         this.filePath = filePath;
         this.chunkIndex = extractChunkIndex(filePath);
     }

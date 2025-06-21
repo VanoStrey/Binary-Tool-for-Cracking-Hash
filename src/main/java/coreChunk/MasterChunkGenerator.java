@@ -1,4 +1,4 @@
-package threeByteChunkOffset;
+package coreChunk;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

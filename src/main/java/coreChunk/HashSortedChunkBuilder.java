@@ -1,4 +1,4 @@
-package threeByteChunkOffset;
+package coreChunk;
 
 import hashFunc.Hasher;
 
@@ -8,17 +8,17 @@ import java.math.BigInteger;
 import java.nio.file.*;
 import java.util.*;
 
-public class ThreeByteChunkDictionarySorter {
+public class HashSortedChunkBuilder {
     private final Entry[] masterEntries;
     private final int elementSize = 3;
     private final int totalElements;
     private final Hasher hasher;
-    private final ThreeByteBaseConverter converter;
+    private final ChunkValueEncoding converter;
 
-    public ThreeByteChunkDictionarySorter(
+    public HashSortedChunkBuilder(
             String relativeMasterChunkPath,
             Hasher hasher,
-            ThreeByteBaseConverter converter
+            ChunkValueEncoding converter
     ) throws IOException {
         Path absolutePath = Paths.get("").toAbsolutePath()
                 .resolve(relativeMasterChunkPath);

@@ -1,12 +1,12 @@
-package threeByteChunkOffset;
+package coreChunk;
 
 import java.math.BigInteger;
 
-public class ThreeByteBaseConverter {
+public class ChunkValueEncoding {
     private final String rangeChars;
     private final int base;
 
-    public ThreeByteBaseConverter(String rangeChars) {
+    public ChunkValueEncoding(String rangeChars) {
         this.rangeChars = rangeChars;
         this.base = rangeChars.length();
     }

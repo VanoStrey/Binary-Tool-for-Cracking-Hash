@@ -1,28 +1,25 @@
-package Bytes;
+package hashFunc;
 
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class MD5Hash implements Hasher {
+public class SHA1Hash implements Hasher {
 
     public String getName() {
-        return "MD5";
+        return "SHA1";
     }
 
     public String getHash(String input) {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
             byte[] messageDigest = md.digest(input.getBytes());
-
-            BigInteger no = new BigInteger(1, messageDigest);
-
-            StringBuilder hashText = new StringBuilder(no.toString(16));
-            while (hashText.length() < 32) {
-                hashText.insert(0, "0");
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : messageDigest) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
             }
-            return hashText.toString();
+            return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -30,13 +27,12 @@ public class MD5Hash implements Hasher {
 
     public byte[] getBinHash(String input) {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
             return md.digest(input.getBytes());
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Ошибка: Алгоритм MD5 не найден!", e);
+            throw new RuntimeException("Ошибка: Алгоритм SHA-1 не найден!", e);
         }
     }
-
     public byte[] hexToBytes(String hex) {
         int length = hex.length();
         byte[] bytes = new byte[length / 2];
@@ -47,4 +43,5 @@ public class MD5Hash implements Hasher {
         }
         return bytes;
     }
+
 }

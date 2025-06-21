@@ -1,38 +1,39 @@
-package Bytes;
+package hashFunc;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class SHA1Hash implements Hasher {
+public class SHA256Hash implements Hasher {
 
     public String getName() {
-        return "SHA1";
+        return "SHA256";
     }
 
     public String getHash(String input) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] messageDigest = md.digest(input.getBytes());
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(input.getBytes());
+
+            // Преобразование байтов в HEX строку
             StringBuilder hexString = new StringBuilder();
-            for (byte b : messageDigest) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
+            for (byte b : hashBytes) {
+                hexString.append(String.format("%02x", b));
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Ошибка: Алгоритм SHA-256 не найден!", e);
         }
     }
 
     public byte[] getBinHash(String input) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            return md.digest(input.getBytes());
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return digest.digest(input.getBytes());
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Ошибка: Алгоритм SHA-1 не найден!", e);
+            throw new RuntimeException("Ошибка: Алгоритм SHA-256 не найден!", e);
         }
     }
+
     public byte[] hexToBytes(String hex) {
         int length = hex.length();
         byte[] bytes = new byte[length / 2];

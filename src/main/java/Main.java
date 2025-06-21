@@ -1,4 +1,5 @@
-import Bytes.*;
+import hashFunc.*;
+import threeByteChunkOffset.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -6,48 +7,38 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
 
 
 public class Main {
 
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
-    public static ArrayList<ArrayList<BinaryHashSearcher>> binarySearch = new ArrayList<>();
-    public static ArrayList<BinBinaryHashSearcher> binBinarySearch = new ArrayList<>();
-    private static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
+    public static ArrayList<ThreeByteChunkSearcher> threeByteChunkSearcher = new ArrayList<>();
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        UnicodeConverter unicodeConverter = new UnicodeConverter("0123456789");
-        SymbolFileAccessor accessor = new SymbolFileAccessor("UC2_2^30/chunk_15.txt", 2);
-        UnicodeCombinationsGenerator generator = new UnicodeCombinationsGenerator();
-        DictionarySplitter dictionarySplitter = new DictionarySplitter("UC2_2^30.txt", 2);
-        DictionaryAddition dictionaryAddition = new DictionaryAddition();
-        DictionarySorter dictionarySorter = new DictionarySorter();
         SHA256Hash sha256 = new SHA256Hash();
         SHA1Hash sha1 = new SHA1Hash();
         MD5Hash md5 = new MD5Hash();
 
-        long rangeCombinations = (long) Math.pow(2, 27);
 
-        BinCombinationGenerate binCombinationGenerate = new BinCombinationGenerate((rangeCombinations * 31) -1L);
-        BinBaseConverter binBaseConverter = new BinBaseConverter("0123456789");
-        BinDictionarySorter binDictionarySorter = new BinDictionarySorter();
+        ThreeByteBaseConverter threeByteBaseConverter = new ThreeByteBaseConverter("0123456789");
+        initThreeByteChunckSearch(threeByteBaseConverter, sha256);
+        menuApp();
 
-        for (int i = 32; i < 80; i++) {
-            binDictionarySorter.generateAndSortInMemory("SHA256_2^27/chunk_" + i + ".bin", 5, binBaseConverter, sha256, rangeCombinations, binCombinationGenerate);
-        }
-        initBinBinarySearchHash(binBaseConverter, sha256);
-        startTelegramBot();
+        /*
+        ThreeByteChunkDictionarySorter threeByteChunkDictionarySorter = new ThreeByteChunkDictionarySorter("master_chunk.bin", sha256, threeByteBaseConverter );
+        String pathDictionary = "chuncks_SHA256_0123456789";
+        threeByteChunkDictionarySorter.sortChunkToFile(pathDictionary, 8);
+
+         */
+
     }
 
-    public static String BinCrackSHA256(String hash) throws InterruptedException {
+    public static String ThreeByteCrackSHA256(String hash) throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Future<String>> futures = new ArrayList<>();
 
-        for (BinBinaryHashSearcher searcher : binBinarySearch) {
+        for (ThreeByteChunkSearcher searcher : threeByteChunkSearcher) {
             futures.add(executor.submit(() -> searcher.search(hash))); // 🔥 Параллельный поиск
         }
 
@@ -69,21 +60,9 @@ public class Main {
         return rezult.length() > 0 ? rezult.toString() : "hash not found";
     }
 
-    private static void initBinBinarySearchHash(BinBaseConverter converter, Hasher sha256) {
-        for (int i = 32; i < 80; i++) {
-            binBinarySearch.add(new BinBinaryHashSearcher(new BinFileAccessor("SHA256_2^27/chunk_" + i + ".bin", 5), converter, sha256));
-        }
-    }
-
-    private static void initBinarySearchHash(UnicodeConverter unicodeConverter, Hasher md5, Hasher sha1, Hasher sha256) {
-        ArrayList<BinaryHashSearcher> DictionaryChunks = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            binarySearch.add(DictionaryChunks);
-        }
-        for (int i = 0; i < 16; i++) {
-            binarySearch.get(0).add(new BinaryHashSearcher(new SymbolFileAccessor("sortUC2_2^30_16chunks/MD5_chunk_" + i + ".txt", 2), unicodeConverter, md5));
-            binarySearch.get(1).add(new BinaryHashSearcher(new SymbolFileAccessor("sortUC2_2^30_16chunks/SHA1_chunk_" + i + ".txt", 2), unicodeConverter, sha1));
-            binarySearch.get(2).add(new BinaryHashSearcher(new SymbolFileAccessor("sortUC2_2^30_16chunks/SHA256_chunk_" + i + ".txt", 2), unicodeConverter, sha256));
+    private static void initThreeByteChunckSearch(ThreeByteBaseConverter converter, Hasher sha256) {
+        for (int i = 0; i < 8; i++) {
+            threeByteChunkSearcher.add(new ThreeByteChunkSearcher(new ThreeByteFileAccessor("chuncks_SHA256_0123456789/chunk_" + i + ".bin"), converter, sha256));
         }
     }
 
@@ -97,42 +76,6 @@ public class Main {
         }
     }
 
-    public static String universalCrackHash(String hash) {
-        int index = switch (hash.length()) {
-            case 32 -> 0;
-            case 40 -> 1;
-            case 64 -> 2;
-            default -> -1;
-        };
-
-        if (index == -1) {
-            return "unavailable hash type";
-        }
-
-        List<BinaryHashSearcher> searchModules = binarySearch.get(index);
-        List<Future<String>> futures = new ArrayList<>();
-
-        for (BinaryHashSearcher module : searchModules) {
-            futures.add(executor.submit(() -> {
-                String result = module.search(hash);
-                return (result != null && !result.isEmpty()) ? result : null;
-            }));
-        }
-
-        for (Future<String> future : futures) {
-            try {
-                String decrypted = future.get(); // 🚀 Ожидаем результат
-                if (decrypted != null) {
-                    return decrypted; // ✅ Возвращаем найденный хэш, но НЕ завершаем `executor`
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return "not found"; // 🔥 `executor` остаётся активным для новых запросов
-    }
-
     private static void menuApp() throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         String hash, result;
@@ -142,7 +85,7 @@ public class Main {
             hash = scanner.next();
 
             startTime = System.currentTimeMillis();
-            result = BinCrackSHA256(hash);
+            result = ThreeByteCrackSHA256(hash);
             endTime = System.currentTimeMillis();
 
 

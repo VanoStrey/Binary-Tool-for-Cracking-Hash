@@ -1,4 +1,4 @@
-package Bytes;
+package hashFunc;
 
 public interface Hasher {
     String getName();

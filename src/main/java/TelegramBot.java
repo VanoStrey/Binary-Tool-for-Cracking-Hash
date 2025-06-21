@@ -4,8 +4,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class TelegramBot extends TelegramLongPollingBot {
-    private static final String BOT_USERNAME = "BinaryToolCrackingHash_bot";
-    private static final String BOT_TOKEN = "7794808374:AAHThdCTXmtlGREBggWFeC_gL2EYsKmPsHY";
+    private static final String BOT_USERNAME = "";
+    private static final String BOT_TOKEN = "";
 
     @Override
     public String getBotUsername() {

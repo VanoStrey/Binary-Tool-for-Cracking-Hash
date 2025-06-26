@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class Main {
@@ -23,10 +24,11 @@ public class Main {
         String outputDir = "chuncks_SHA256_0123456789";
 
 
+        /*
         int threadCount = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
-        for (int chunkIndex = 12; chunkIndex < 256; chunkIndex++) {
+        for (int chunkIndex = 256; chunkIndex < 600; chunkIndex++) {
             final int index = chunkIndex;
             executor.submit(() -> {
                 try {
@@ -40,43 +42,42 @@ public class Main {
         executor.shutdown();
         executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         System.out.println("✅ Все чанки завершены");
-
-
-
-
+         */
 
         initChunkSearch(outputDir, chunkValueEncoding, sha256);
         startTelegramBot();
     }
 
     public static String CrackSHA256(String hash) throws InterruptedException {
+        AtomicReference<String> foundResult = new AtomicReference<>();
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        List<Future<String>> futures = new ArrayList<>();
+        List<Future<?>> futures = new ArrayList<>();
 
         for (HashBinarySearch searcher : hashBinarySearch) {
-            futures.add(executor.submit(() -> searcher.search(hash))); // 🔥 Параллельный поиск
+            futures.add(executor.submit(() -> {
+                if (foundResult.get() != null) return;
+                String result = searcher.search(hash);
+                if (!result.isEmpty()) foundResult.compareAndSet(null, result);
+            }));
         }
 
-        executor.shutdown();
-        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-
-        StringBuilder result = new StringBuilder();
-        for (Future<String> future : futures) {
+        for (Future<?> f : futures) {
             try {
-                String found = future.get();
-                if (found != null) {
-                    result.append(found); // 🔥 Объединяем результаты
-                }
+                f.get(); // 🔥 Именно тут может быть ExecutionException
             } catch (ExecutionException e) {
-                e.printStackTrace();
+                e.printStackTrace(); // или залогируй по-своему
             }
         }
 
-        return result.length() > 0 ? result.toString() : "hash not found";
+        executor.shutdown();
+
+        return foundResult.get() != null ? foundResult.get() : "hash not found";
     }
 
-    private static void initChunkSearch(String dictionaryDir, ChunkValueEncoding converter, Hasher sha256) {
-        for (int i = 0; i < 256; i++) {
+
+
+    private static void initChunkSearch(String dictionaryDir, ChunkValueEncoding converter, Hasher sha256) throws IOException {
+        for (int i = 0; i < 600; i++) {
             String path = dictionaryDir + "/chunk_" + i + ".bin";
             Path chunkPath = Paths.get(path);
 
@@ -101,7 +102,7 @@ public class Main {
         }
     }
 
-    private static void menuApp() throws InterruptedException {
+    private static void menuApp() throws InterruptedException, ExecutionException {
         Scanner scanner = new Scanner(System.in);
         String hash, result;
         long startTime, endTime;

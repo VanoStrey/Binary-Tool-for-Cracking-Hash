@@ -9,6 +9,10 @@ public class ChunkValueEncoding {
         this.base = rangeChars.length();
     }
 
+    public String getRangeChars() {
+        return rangeChars;
+    }
+
     public String convertToBaseString(byte[] value) {
         if (value == null || value.length == 0)
             throw new IllegalArgumentException("Недопустимое значение");

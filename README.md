@@ -59,7 +59,7 @@ builder.sortChunkToFile("chuncks",chunkIndex);
 
 ```java
 String result = CrackSHA256("SHA256_HEX_HASH");
-System.out.println("Результат: "+result);
+System.out.println("Результат: " + result);
 ```
 
 - Каждый чанк обрабатывается отдельным потоком

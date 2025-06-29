@@ -99,15 +99,9 @@ BiTCH поддерживает **любой алфавит** и **любой р�
 
 ```java
 new ChunkValueEncoding("0123456789"); // base-10 (только цифры)
-new
-
-ChunkValueEncoding("abcdef");     // base-6
-new
-
-ChunkValueEncoding("01");         // бинарные строки
-new
-
-ChunkValueEncoding("ASCII set!@#..."); // 90+ символов
+new ChunkValueEncoding("abcdef");     // base-6
+new ChunkValueEncoding("01");         // бинарные строки
+new ChunkValueEncoding("ASCII set!@#..."); // 90+ символов
 ```
 
 ---

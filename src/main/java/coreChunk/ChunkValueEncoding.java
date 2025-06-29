@@ -41,5 +41,4 @@ public class ChunkValueEncoding {
         }
         return remainder;
     }
-
 }

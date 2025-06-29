@@ -46,12 +46,8 @@ java coreChunk.MasterChunkGenerator
 
 ```java
 ChunkValueEncoding encoding = new ChunkValueEncoding("0123456789abcdef"); // любой алфавит
-HashSortedChunkBuilder builder = new HashSortedChunkBuilder(
-        "master_chunk.bin", new SHA256Hash(), encoding
-);
-builder.
-
-sortChunkToFile("chuncks",chunkIndex);
+HashSortedChunkBuilder builder = new HashSortedChunkBuilder("master_chunk.bin", new SHA256Hash(), encoding);
+builder.sortChunkToFile("chuncks",chunkIndex);
 ```
 
 Чанк содержит 2²⁴ = 16 777 216 строк, отсортированных по хэшу.
@@ -62,9 +58,7 @@ sortChunkToFile("chuncks",chunkIndex);
 
 ```java
 String result = CrackSHA256("SHA256_HEX_HASH");
-System.out.
-
-println("Результат: "+result);
+System.out.println("Результат: "+result);
 ```
 
 - Каждый чанк обрабатывается отдельным потоком

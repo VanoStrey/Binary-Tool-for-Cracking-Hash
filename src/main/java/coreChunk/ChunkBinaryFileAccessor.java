@@ -1,38 +1,31 @@
 package coreChunk;
 
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.*;
+import java.io.*;
 
 public class ChunkBinaryFileAccessor implements AutoCloseable {
     private static final int ELEMENT_SIZE = 3;
-    private static final int BLOCK_SIZE   = 4 * 1024 * 1024; // 4 MB window
 
-    private final byte[]      globalOffset;
-    private final int         globalOffsetLen;
-    private final long        totalElements;
-    private final FileChannel channel;
-
-    private MappedByteBuffer  buffer;
-    private long              currentBlockStart = -1;
+    private final byte[] globalOffset;
+    private final int globalOffsetLen;
+    private final long totalElements;
+    private final RandomAccessFile raf;
 
     public ChunkBinaryFileAccessor(String filePath) throws IOException {
         int chunkIndex = extractChunkIndex(filePath);
         this.globalOffset = encodeChunkOffset(chunkIndex);
         this.globalOffsetLen = globalOffset.length;
 
-        Path path = Path.of(filePath);
-        this.channel = FileChannel.open(path, StandardOpenOption.READ);
-        long fileSize = channel.size();
+        File file = new File(filePath);
+        this.raf = new RandomAccessFile(file, "r");
+        long fileSize = raf.length();
         this.totalElements = fileSize / ELEMENT_SIZE;
     }
 
     private int extractChunkIndex(String path) {
-        String fileName = Path.of(path).getFileName().toString();
+        String fileName = new File(path).getName();
         try {
             int start = fileName.indexOf("chunk_") + 6;
-            int end   = fileName.indexOf('.', start);
+            int end = fileName.indexOf('.', start);
             return Integer.parseInt(fileName.substring(start, end));
         } catch (Exception e) {
             throw new IllegalArgumentException(
@@ -45,29 +38,16 @@ public class ChunkBinaryFileAccessor implements AutoCloseable {
         if (index < 0 || index >= totalElements) return null;
 
         long byteOffset = index * ELEMENT_SIZE;
-        long blockStart = (byteOffset / BLOCK_SIZE) * BLOCK_SIZE;
+        raf.seek(byteOffset);
 
-        // Пересоздать окно, если выходим за границу текущего
-        if (blockStart != currentBlockStart) {
-            long remaining = channel.size() - blockStart;
-            long mapSize   = Math.min(BLOCK_SIZE, remaining);
-            try {
-                buffer = channel.map(FileChannel.MapMode.READ_ONLY, blockStart, mapSize);
-            } catch (IOException e) {
-                throw new RuntimeException("Ошибка при мэппинге файла", e);
-            }
-            currentBlockStart = blockStart;
-        }
-
-        int posInBlock = (int)(byteOffset - currentBlockStart);
         byte[] result = new byte[globalOffsetLen + ELEMENT_SIZE];
 
         // 1) Копируем глобальное смещение
         System.arraycopy(globalOffset, 0, result, 0, globalOffsetLen);
 
         // 2) Читаем 3 байта значения
-        buffer.position(posInBlock);
-        buffer.get(result, globalOffsetLen, ELEMENT_SIZE);
+        int read = raf.read(result, globalOffsetLen, ELEMENT_SIZE);
+        if (read != ELEMENT_SIZE) return null;
 
         return result;
     }
@@ -90,6 +70,6 @@ public class ChunkBinaryFileAccessor implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        channel.close();
+        raf.close();
     }
 }

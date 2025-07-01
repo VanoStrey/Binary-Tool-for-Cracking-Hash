@@ -145,7 +145,12 @@ public class BatchPerformanceMonitor {
         for (HashBinarySearch searcher : hashSearches) {
             futures.add(executor.submit(() -> {
                 if (foundResult.get() != null) return;
-                String result = searcher.search(hash);
+                String result = null;
+                try {
+                    result = searcher.search(hash);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 if (!result.isEmpty()) foundResult.compareAndSet(null, result);
             }));
         }

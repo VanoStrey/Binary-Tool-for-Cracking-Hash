@@ -1,3 +1,4 @@
+import coreChunk.DictionarySearch;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -6,7 +7,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class TelegramBot extends TelegramLongPollingBot {
     private static final String BOT_USERNAME = "";
     private static final String BOT_TOKEN = "";
+    private static DictionarySearch dictionarySearch;
 
+    public TelegramBot(DictionarySearch dictionarySearch){
+        this.dictionarySearch = dictionarySearch;
+    }
     @Override
     public String getBotUsername() {
         return BOT_USERNAME;
@@ -25,13 +30,13 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if (messageText.equalsIgnoreCase("/start")) {
                 sendResponse(chatId, "❗\uFE0FMade with @VanoStrey❗\uFE0F\nThis is a prototype program, so the variety of symbols in combinations is limited. But the algorithm allows you to use any characters in combinations.");
-                sendResponse(chatId, "👋 Hi! Send me the hash.\nAnd I'll crack it right away.\uD83D\uDE08\uD83D\uDE08\uD83D\uDE08.\nSupported algorithms:\n\nSHA256\n\nThe dictionary contains natural numbers from 1 to 10.066.329.599");
+                sendResponse(chatId, "👋 Hi! Send me the hash.\nAnd I'll crack it right away.\uD83D\uDE08\uD83D\uDE08\uD83D\uDE08.\nSupported algorithms:\n\nSHA256\n\ndictionary alphabet: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}|;:',.<>?/\nThe dictionary contains all combinations up to and including 5 characters");
 
             } else {
                 long startTime = System.currentTimeMillis();
                 String result = null;
                 try {
-                    result = Main.CrackSHA256(messageText);
+                    result = dictionarySearch.search(messageText);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

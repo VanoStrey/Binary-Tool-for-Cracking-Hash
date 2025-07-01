@@ -3,46 +3,59 @@ package coreChunk;
 public class ChunkValueEncoding {
     private final String rangeChars;
     private final int base;
+    private final ThreadLocal<char[]> TL_CHARS;
 
     public ChunkValueEncoding(String rangeChars) {
         this.rangeChars = rangeChars;
         this.base = rangeChars.length();
+        // Размер буфера: достаточно 16 символов для 48-битного числа в основании ≤94
+        this.TL_CHARS = ThreadLocal.withInitial(() -> new char[16]);
     }
 
     public String getRangeChars() {
         return rangeChars;
     }
 
-    public String convertToBaseString(byte[] value) {
-        if (value == null || value.length == 0)
+    /**
+     * Преобразует value (глобальный офсет + локальное значение) в символы,
+     * записывая их в out справа налево.
+     * Возвращает длину полезных символов в out.
+     */
+    public int encodeToChars(byte[] value, char[] out) {
+        if (value == null || value.length == 0) {
             throw new IllegalArgumentException("Недопустимое значение");
-
-        // Копируем значение, чтобы не портить оригинал
-        byte[] number = value.clone();
-        StringBuilder result = new StringBuilder();
-
-        while (!isZero(number)) {
-            int rem = divide(number, base);
-            result.insert(0, rangeChars.charAt(rem));
         }
 
-        return result.length() > 0 ? result.toString() : String.valueOf(rangeChars.charAt(0));
+        // Собираем 48-битное число из байтов
+        long num = 0L;
+        for (byte b : value) {
+            num = (num << 8) | (b & 0xFFL);
+        }
+
+        int pos = out.length;
+        // Делим аппаратно, пишем остаток
+        while (num != 0L) {
+            long q = num / base;
+            int r  = (int)(num - q * base);
+            out[--pos] = rangeChars.charAt(r);
+            num = q;
+        }
+
+        // Если число было нулём — один символ «0»
+        if (pos == out.length) {
+            out[--pos] = rangeChars.charAt(0);
+        }
+
+        return out.length - pos;
     }
 
-    private boolean isZero(byte[] bytes) {
-        for (byte b : bytes) {
-            if (b != 0) return false;
-        }
-        return true;
-    }
-
-    private int divide(byte[] number, int base) {
-        int remainder = 0;
-        for (int i = 0; i < number.length; i++) {
-            int current = (remainder << 8) | (number[i] & 0xFF);
-            number[i] = (byte) (current / base);
-            remainder = current % base;
-        }
-        return remainder;
+    /**
+     * Старый метод (контракт не меняется): возвращает строку,
+     * основанную на encodeToChars().
+     */
+    public String convertToBaseString(byte[] value) {
+        char[] buf = TL_CHARS.get();
+        int len = encodeToChars(value, buf);
+        return new String(buf, buf.length - len, len);
     }
 }

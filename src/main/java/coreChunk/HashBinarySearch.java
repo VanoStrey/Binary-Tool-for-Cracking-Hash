@@ -2,6 +2,8 @@ package coreChunk;
 
 import hashFunc.Hasher;
 
+import java.io.IOException;
+
 public class HashBinarySearch {
     private final ChunkBinaryFileAccessor accessor;
     private final ChunkValueEncoding converter;
@@ -15,56 +17,47 @@ public class HashBinarySearch {
         this.hasher = hasher;
     }
 
-    public String search(String targetHashHEX) {
+    public String search(String targetHashHEX) throws IOException {
         long total = accessor.getTotalElements();
         if (total == 0) return "";
 
-        byte[] targetHash = hasher.hexToBytes(targetHashHEX);
+        byte[] target = hasher.hexToBytes(targetHashHEX);
+        // один буфер на весь метод
+        char[] buf = new char[32];
 
-        // Нижняя граница
-        if (isTargetBeforeFirst(targetHash)) return "";
+        // границы
+        if (compareBoundary(0, buf, target) > 0)      return "";
+        if (compareBoundary(total-1, buf, target) < 0) return "";
 
-        // Верхняя граница
-        if (isTargetAfterLast(targetHash, total)) return "";
-
-        long low = 0;
-        long high = total - 1;
-
+        long low = 0, high = total - 1;
         while (low <= high) {
-            long mid = low + ((high - low) >>> 1);
-            String midString = converter.convertToBaseString(accessor.getElement(mid));
-            byte[] hash = hasher.getBinHash(midString);
+            long mid = (low + high) >>> 1;
+            byte[] elem = accessor.getElement(mid);
 
-            int cmp = compareHashes(hash, targetHash);
-            if (cmp < 0) {
-                low = mid + 1;
-            } else if (cmp > 0) {
-                high = mid - 1;
-            } else {
-                return midString;
-            }
+            int len = converter.encodeToChars(elem, buf);
+            byte[] hash = hasher.getBinHash(buf, buf.length - len, len);
+
+            int cmp = compareHashes(hash, target);
+            if (cmp < 0)      low  = mid + 1;
+            else if (cmp > 0) high = mid - 1;
+            else return new String(buf, buf.length - len, len);
         }
         return "";
     }
 
-    private boolean isTargetBeforeFirst(byte[] targetHash) {
-        String first = converter.convertToBaseString(accessor.getElement(0));
-        byte[] firstHash = hasher.getBinHash(first);
-        return compareHashes(targetHash, firstHash) < 0;
-    }
-
-    private boolean isTargetAfterLast(byte[] targetHash, long total) {
-        String last = converter.convertToBaseString(accessor.getElement(total - 1));
-        byte[] lastHash = hasher.getBinHash(last);
-        return compareHashes(targetHash, lastHash) > 0;
+    private int compareBoundary(long idx, char[] buf, byte[] target) throws IOException {
+        byte[] elem = accessor.getElement(idx);
+        int len = converter.encodeToChars(elem, buf);
+        byte[] hash = hasher.getBinHash(buf, buf.length - len, len);
+        return compareHashes(hash, target);
     }
 
     private int compareHashes(byte[] a, byte[] b) {
-        for (int i = 0; i < Math.min(a.length, b.length); i++) {
-            int ai = a[i] & 0xFF;
-            int bi = b[i] & 0xFF;
-            if (ai != bi) return Integer.compare(ai, bi);
+        int len = Math.min(a.length, b.length);
+        for (int i = 0; i < len; i++) {
+            int ai = a[i] & 0xFF, bi = b[i] & 0xFF;
+            if (ai != bi) return ai - bi;
         }
-        return Integer.compare(a.length, b.length);
+        return a.length - b.length;
     }
 }

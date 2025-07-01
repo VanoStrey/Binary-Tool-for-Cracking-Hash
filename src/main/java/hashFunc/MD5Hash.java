@@ -1,50 +1,38 @@
 package hashFunc;
 
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class MD5Hash implements Hasher {
+    private static final ThreadLocal<MessageDigest> DIG =
+            ThreadLocal.withInitial(() -> {
+                try { return MessageDigest.getInstance("MD5"); }
+                catch (NoSuchAlgorithmException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
 
-    public String getName() {
-        return "MD5";
-    }
+    @Override
+    public String getName() { return "MD5"; }
 
-    public String getHash(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-
-            byte[] messageDigest = md.digest(input.getBytes());
-
-            BigInteger no = new BigInteger(1, messageDigest);
-
-            StringBuilder hashText = new StringBuilder(no.toString(16));
-            while (hashText.length() < 32) {
-                hashText.insert(0, "0");
-            }
-            return hashText.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+    @Override
+    public byte[] getBinHash(char[] chars, int offset, int length) {
+        MessageDigest md = DIG.get();
+        md.reset();
+        for (int i = offset, end = offset + length; i < end; i++) {
+            md.update((byte) chars[i]);
         }
+        return md.digest();
     }
 
-    public byte[] getBinHash(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            return md.digest(input.getBytes());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Ошибка: Алгоритм MD5 не найден!", e);
-        }
-    }
-
+    @Override
     public byte[] hexToBytes(String hex) {
-        int length = hex.length();
-        byte[] bytes = new byte[length / 2];
-
-        for (int i = 0; i < length; i += 2) {
-            bytes[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i + 1), 16));
+        int len = hex.length();
+        byte[] out = new byte[len/2];
+        for (int i = 0; i < len; i += 2) {
+            out[i/2] = (byte)((Character.digit(hex.charAt(i),16)<<4)
+                    + Character.digit(hex.charAt(i+1),16));
         }
-        return bytes;
+        return out;
     }
 }

@@ -7,6 +7,7 @@ import hashFunc.Hasher;
 import hashFunc.SHA256Hash;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.NumberFormat;
@@ -52,7 +53,7 @@ public class ChunkPerformanceBenchmark {
 
     private static void warmUp(ChunkBinaryFileAccessor accessor,
                                ChunkValueEncoding encoder,
-                               Hasher hasher) {
+                               Hasher hasher) throws IOException {
         System.out.println("🔥 Прогрев...");
         long total = accessor.getTotalElements();
         long[] offsets = {
@@ -73,7 +74,7 @@ public class ChunkPerformanceBenchmark {
         System.out.println("✅ Прогрев завершён\n");
     }
 
-    public static void benchmarkElementAccess(ChunkBinaryFileAccessor accessor) {
+    public static void benchmarkElementAccess(ChunkBinaryFileAccessor accessor) throws IOException {
         final int step = 10_000;
         final int iterations = 50;
         long total = 0;
@@ -94,7 +95,7 @@ public class ChunkPerformanceBenchmark {
         System.out.printf("📎 Доступ к элементу: %.2f нс\n", avgNs);
     }
 
-    public static void benchmarkEncoding(ChunkValueEncoding encoder, ChunkBinaryFileAccessor accessor) {
+    public static void benchmarkEncoding(ChunkValueEncoding encoder, ChunkBinaryFileAccessor accessor) throws IOException {
         long t0 = System.nanoTime();
         for (int i = 0; i < 100_000; i += 500) {
             byte[] element = accessor.getElement(i);
@@ -105,7 +106,7 @@ public class ChunkPerformanceBenchmark {
         System.out.printf("🔤 Энкодинг: %.2f нс/запись\n", avg);
     }
 
-    public static void benchmarkHashing(ChunkValueEncoding encoder, ChunkBinaryFileAccessor accessor, Hasher hasher) {
+    public static void benchmarkHashing(ChunkValueEncoding encoder, ChunkBinaryFileAccessor accessor, Hasher hasher) throws IOException {
         long t0 = System.nanoTime();
         for (int i = 0; i < 100_000; i += 500) {
             byte[] element = accessor.getElement(i);
@@ -119,7 +120,7 @@ public class ChunkPerformanceBenchmark {
 
     public static void benchmarkEncodingAndHashing(ChunkBinaryFileAccessor accessor,
                                                    ChunkValueEncoding encoder,
-                                                   Hasher hasher) {
+                                                   Hasher hasher) throws IOException {
         long t0 = System.nanoTime();
         for (int i = 0; i < 100_000; i += 500) {
             byte[] element = accessor.getElement(i);
@@ -134,7 +135,7 @@ public class ChunkPerformanceBenchmark {
     public static void benchmarkBinarySearch(ChunkBinaryFileAccessor accessor,
                                              ChunkValueEncoding encoder,
                                              Hasher hasher,
-                                             String testHash) {
+                                             String testHash) throws IOException {
         HashBinarySearch search = new HashBinarySearch(accessor, encoder, hasher);
         long t0 = System.nanoTime();
         String result = search.search(testHash);

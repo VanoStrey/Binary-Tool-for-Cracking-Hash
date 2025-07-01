@@ -4,8 +4,10 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 
 public class Main {
@@ -40,6 +42,17 @@ public class Main {
         System.out.println("✅ Все чанки завершены");
 
          */
+        Scanner scanner = new Scanner(System.in);
+        String baseDir = getParentDirectory(); // или "." если хочешь текущую
+        List<String> availableFolders = listAllFolders(baseDir);
+
+        if (availableFolders.isEmpty()) {
+            System.out.println("❌ Нет доступных папок.");
+            return;
+        }
+
+        String selectedFolder = inputFolder(availableFolders);
+        outputDir = baseDir + File.separator + selectedFolder;
 
         startTelegramBot(new DictionarySearch(outputDir));
     }
@@ -71,4 +84,28 @@ public class Main {
             System.out.println("Время выполнения: " + (endTime - startTime) + " милисекунд\n");
         }
     }
+    public static String getParentDirectory() {
+        return new File(".").getAbsoluteFile().getParent();
+    }
+
+    public static String inputFolder(List<String> folders) {
+        System.out.println("Доступные папки:");
+        for (int i = 0; i < folders.size(); i++) {
+            System.out.println((i + 1) + "... " + folders.get(i));
+        }
+
+        System.out.print("Выберите номер папки: ");
+        Scanner scanner = new Scanner(System.in);
+        int choice = scanner.nextInt() - 1;
+
+        return (choice >= 0 && choice < folders.size()) ? folders.get(choice) : "";
+    }
+
+    public static List<String> listAllFolders(String directoryPath) {
+        File dir = new File(directoryPath);
+        return Arrays.stream(dir.listFiles(File::isDirectory))
+                .map(File::getName)
+                .collect(Collectors.toList());
+    }
+
 }
